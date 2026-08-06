@@ -1,0 +1,148 @@
+# CI: fetches the FullTeaching SUT (retorch-st-fullteaching) with setup-sut.sh, starts it with docker compose
+# and runs the Cypress + JavaScript suite (cypress-js/) against it.
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NODE_VERSION: '22'
+  TJOB_NAME: local
+  SUT_URL: https://localhost:5000
+
+jobs:
+  lint:
+    name: Cypress lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cypress-js
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: cypress-js/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  e2e-cypress-javascript:
+    name: "E2E: Cypress + JavaScript"
+    runs-on: ubuntu-latest
+    needs: [lint]
+    timeout-minutes: 60
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Fetches sut/ and selenium-java/ (gitignored, never committed).
+      - name: Fetch the SUT
+        run: bash ./setup-sut.sh
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: cypress-js/package-lock.json
+
+      - name: Install dependencies
+        working-directory: cypress-js
+        run: npm ci
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('cypress-js/package-lock.json') }}
+
+      # npm >= 11 may skip the Cypress postinstall: verify/download the binary explicitly.
+      - name: Install Cypress binary
+        working-directory: cypress-js
+        run: npx cypress install && npx cypress verify
+
+      # Same stack as deploy.sh / selenium-java/deploy-sut.sh. The compose file's build context is ./sut
+      # relative to selenium-java/, but setup-sut.sh moves sut/ to the repo root, hence the symlink.
+      - name: Build and start the SUT
+        working-directory: selenium-java
+        run: |
+          ln -sfn "$GITHUB_WORKSPACE/sut" sut
+          cp .retorch/envfiles/local.env local.env
+          docker network create jenkins_network
+          COMPOSE="docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file local.env -p $TJOB_NAME"
+          $COMPOSE build full-teaching
+          $COMPOSE up -d
+
+      - name: Wait for the SUT
+        run: |
+          for i in $(seq 1 60); do
+            if docker logs "full-teaching-$TJOB_NAME" 2>&1 | grep -q "Started Application" \
+               && curl -ksf -o /dev/null "$SUT_URL"; then
+              echo "SUT ready after ~$((i*5))s"; exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::SUT did not become ready within 5 minutes"
+          docker ps -a
+          docker logs "full-teaching-$TJOB_NAME" 2>&1 | tail -100
+          exit 1
+
+      - name: Run Cypress specs
+        working-directory: cypress-js
+        run: npx cypress run --browser chrome
+        env:
+          SUT_URL: ${{ env.SUT_URL }}
+
+      - name: Test summary
+        if: always()
+        run: python3 .github/scripts/test_summary.py --title "Cypress + JavaScript" --format junit 'cypress-js/results/*.xml'
+
+      - name: Upload screenshots and JUnit results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cypress-js-reports
+          path: |
+            cypress-js/cypress/screenshots/
+            cypress-js/results/
+          if-no-files-found: ignore
+
+      - name: Dump SUT logs
+        if: failure()
+        run: |
+          # selenium-java/ is missing if an earlier step (e.g. setup-sut.sh) failed.
+          [ -d selenium-java ] || { echo "selenium-java/ not found, nothing to dump"; exit 0; }
+          cd selenium-java
+          docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file local.env -p "$TJOB_NAME" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
+          tail -200 "$RUNNER_TEMP/sut-logs.txt"
+
+      - name: Upload SUT logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: sut-docker-logs
+          path: ${{ runner.temp }}/sut-logs.txt
+          if-no-files-found: ignore
+
+      - name: Tear down the SUT
+        if: always()
+        run: |
+          [ -d selenium-java ] || exit 0
+          cd selenium-java
+          docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file local.env -p "$TJOB_NAME" down -v || true
