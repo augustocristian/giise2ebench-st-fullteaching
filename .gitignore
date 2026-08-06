@@ -1,0 +1,53 @@
+##############################
+## Fetched folders (see setup-sut.sh / setup-sut.ps1)
+##############################
+# These are cloned on demand from
+# https://github.com/giis-uniovi/retorch-st-fullteaching
+# and must never be committed to this repo.
+/sut/
+/selenium-java/
+
+##############################
+## Eclipse
+##############################
+.settings/
+.metadata/
+.classpath
+.project
+.factorypath
+.loadpath
+.recommenders/
+.target/
+.tern-project
+.texlipse
+.springBeans
+.cache-main
+.scala_dependencies
+.worksheet
+bin/
+tmp/
+local.properties
+
+##############################
+## Visual Studio Code
+##############################
+.vscode/
+*.code-workspace
+.history/
+
+##############################
+## JetBrains (PyCharm / IntelliJ IDEA)
+##############################
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+.shelf/
+
+##############################
+## OS
+##############################
+.DS_Store
+Thumbs.db

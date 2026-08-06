@@ -1,0 +1,16 @@
+(1) Todos los usuarios podrán ver los cursos en los que son participantes
+(2) Todos los usuarios podrán acceder a cualquiera de sus cursos, donde podrán ver todas las clases ordenadas por fecha
+(3) El profesor podrá crear cursos. En concreto: (3.1) darle un título, (3.2) añadirle una imagen si lo desea
+(4) El profesor podrá crear una nueva clase dentro de un curso: (1) darle un título, (4.2) darle una descripción, (4.3) asignarle una fecha y hora (4.4) asignar alumnos invitados, (4.5)adjuntar archivos asociados a la clase y (4.6)	habilitar un foro para la clase
+(5)	El alumno debe ser capaz de interaccionar con las cursos en su dashboard: (5.1) ver claramente su información asociada, (5.2) añadir comentarios en el foro si está habilitado para un curso y (5.3) descargar archivos adjuntos si existen para una curso
+(6) El profesor debe poder dar las clases. En concreto debe poder: (6.1) iniciar una clase, (6.2) Compartir/Bloquear el audio, (6.3) Compartir/Bloquear la webcam, (6.4) Ver la información asociada a esa clase, incluyendo: título, duración actual, asistentes actuales, turnos de intervención solicitados y en espera,(6.5) Hablar por el chat, (6.6) ceder turno de intervención a un alumno que lo haya solicitado, (6.7) retomar el control desde la intervención de un alumno y (6.8) finalizar la clase
+(7)	El alumno tiene que poder asistir a clase. En concreto debe poder: (7.1) entrar a una clase cuando el profesor la haya iniciado, (7.2) recibir el audio e imagen del profesor, (7.3) bloquear audio e imagen del profesor,(7.4) ver la información asociada a esa clase, incluyendo: título, duración actual, asistentes actuales, (7.5) hablar por el chat, (7.6) solicitar turno de intervención, (7.7) cancelar un turno de intervención ya solicitado y (7.8)Compartir audio y webcam con los demás asistentes a la clase cuando se le otorgue el turno de intervención solicitado
+(8) Los usuarios podrán registrarse por correo
+(9) Los usuarios podrán iniciar sesión en la aplicación
+(10) El profesor podrá editar en cualquier momento los atributos de un curso
+(11) El profesor podrá editar en cualquier momento los atributos de una clase
+(12) Los usuarios podrán modificar sus perfiles: nombre, e-mail, contraseña fotografía
+(13) El profesor podrá añadir una descripción a sus cursos: texto en diferentes formatos, imágenes, enlace
+(14) Todos los usuarios deberán aceptar un Captcha a la hora de registrarse
+(15) Todos los usuarios deben tener acceso a un calendario con todas sus clases
+(16) El profesor podrá añadir a alumnos a un curso de diferentes formas: (16.1) por un único correo electrónico (16.2) por múltiples correos electrónicos o (16.3) por subida de archivo (txt, excel, word, pdf…)
