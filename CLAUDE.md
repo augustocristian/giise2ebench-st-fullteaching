@@ -18,8 +18,8 @@ absence, and do not assume a previous session already fetched them.
 ## What this repo is
 
 A benchmark wrapper around the RETORCH FullTeaching System Test suite. This repo
-itself only holds the setup/deploy scripts, `.gitignore`, and this file; the actual
-application and tests live upstream at
+itself only holds the setup/deploy scripts, `docs/` (functional requirements),
+`.gitignore`, and this file; the actual application and tests live upstream at
 [giis-uniovi/retorch-st-fullteaching](https://github.com/giis-uniovi/retorch-st-fullteaching)
 and are pulled in locally by `setup-sut.sh` / `setup-sut.ps1`.
 
@@ -51,10 +51,16 @@ Selenium/Java end-to-end test suite.
 ├── setup-sut.ps1            # Windows: fetch sut/ and selenium-java/ from upstream
 ├── deploy.sh                 # Linux/macOS: deploy the SUT stack (wraps selenium-java/deploy-sut.sh)
 ├── deploy.ps1                 # Windows: deploy the SUT stack (wraps selenium-java/deploy-sut.ps1)
+├── docs/
+│   ├── userrequirements_en.txt  # FullTeaching functional requirements (English)
+│   └── userrequirements_es.txt  # FullTeaching functional requirements (Spanish)
 ├── .gitignore
 ├── CLAUDE.md
 └── README.md
 ```
+
+`sut/` and `selenium-java/` are gitignored and fetched on demand (see the iron
+rule above); everything else in this tree is tracked in this repo.
 
 ## Working with the test suite
 
@@ -69,6 +75,15 @@ Selenium/Java end-to-end test suite.
 - `selenium-java/.retorch/` holds the RETORCH framework configuration
   (test job definitions, environment files, container lifecycle scripts) used to
   schedule and run the suite under RETORCH.
+
+## Functional requirements
+
+`docs/userrequirements_en.txt` and `docs/userrequirements_es.txt` list the 16
+numbered functional requirements for the FullTeaching application (courses,
+classes, forum, live video sessions with intervention turns, registration,
+profiles, calendar, etc.), in English and Spanish respectively. Use these as
+the reference spec when relating test cases in `selenium-java/` to the
+feature they cover.
 
 ## Keeping sut/ and selenium-java/ fresh
 
