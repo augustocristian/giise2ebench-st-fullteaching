@@ -1,0 +1,40 @@
+name: test-puppeteer-python
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    name: "Lint & collect"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: puppeteer-python
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        uses: snok/install-poetry@a783c322200f0519c7926aa6faa857c4e23e9263 # v1
+        with:
+          version: "2.4.0"
+          virtualenvs-in-project: true
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Lint with flake8
+        run: |
+          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Collect tests (syntax/import/parametrization check, no SUT required)
+        run: poetry run pytest --collect-only
+      # Running the suite for real additionally requires:
+      #   1. A running FullTeaching SUT (see ../deploy.sh / ../deploy.ps1) with SUT_URL pointing at it.
+      #   2. The Chromium build pyppeteer downloads on first run (poetry run pyppeteer-install).
+      # This is intentionally not wired into CI here, mirroring how selenium-java's
+      # E2E job also depends on a separately provisioned SUT (see ../selenium-java/Jenkinsfile).

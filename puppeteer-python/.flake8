@@ -1,0 +1,7 @@
+[flake8]
+extend-exclude = .venv
+max-line-length = 127
+# E127 (continuation line over-indented for visual indent) fires throughout on the
+# `await x.wait_until(lambda: ..., "message")` pattern used across the test suite; it's a
+# style preference, not a defect, so it's relaxed here rather than reformatting every call.
+extend-ignore = E127

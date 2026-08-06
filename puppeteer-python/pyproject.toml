@@ -1,0 +1,48 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{ include = "fullteaching_e2e" }]
+
+[project]
+name = "fullteaching-e2e-puppeteer-python"
+version = "1.1.1"
+dependencies = [
+    "pyppeteer==2.0.0",
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "pytest-cov==7.1.0",
+    "flake8==7.3.0",
+]
+
+requires-python = ">=3.12"
+
+authors = [
+    { name = "Cristian Augusto", email = "augustocristian@uniovi.es" }
+]
+maintainers = [
+    { name = "Cristian Augusto", email = "augustocristian@uniovi.es" }
+]
+
+description = "FullTeaching E2E test suite implemented with Python and Puppeteer (pyppeteer), a RETORCH benchmark counterpart of the selenium-java suite"
+readme = "README.md"
+
+[project.urls]
+Repository = "https://github.com/giis-uniovi/retorch-st-fullteaching"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+addopts = "--cov=fullteaching_e2e --cov-report=xml:coverage.xml --cov-branch"
+#Configurations related to logging in testing, first
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+log_file = "logs/pytest.log"
+log_file_level = "DEBUG"
+log_file_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_file_date_format = "%Y-%m-%d %H:%M:%S"
