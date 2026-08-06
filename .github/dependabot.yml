@@ -35,3 +35,37 @@ updates:
         update-types: [minor, patch]
         exclude-patterns:
           - "Microsoft.Playwright*"
+
+  # Puppeteer + Python suite (test dependencies)
+  - package-ecosystem: pip
+    directory: /puppeteer-python
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - python
+      - puppeteer
+    groups:
+      # pytest and its plugins are released in lockstep and must stay compatible with each other.
+      pytest:
+        patterns:
+          - "pytest*"
+      puppeteer-python-minor-and-patch:
+        update-types: [minor, patch]
+        exclude-patterns:
+          - "pytest*"
+
+  # Puppeteer + Python suite (Node bridge that drives the browser)
+  - package-ecosystem: npm
+    directory: /puppeteer-python/bridge
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - javascript
+      - puppeteer
+    groups:
+      puppeteer-bridge-minor-and-patch:
+        update-types: [minor, patch]

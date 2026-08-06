@@ -2,10 +2,11 @@
 #   1. build-sut (first): fetches the FullTeaching SUT (retorch-st-fullteaching) with setup-sut.sh and builds its docker
 #      image ONCE with the compose file shipped in the clone (sut/docker-compose.yml); the image is shared with
 #      the E2E jobs as the "sut-image" artifact.
-#   2. lint (Cypress) and lint-playwright-csharp (build + format): run once the image is built.
-#   3. e2e-cypress-javascript / e2e-playwright-csharp: only after their lint/build job passes. Each one runs on
-#      its own runner, deploys its own SUT instance with that same sut/docker-compose.yml
-#      (.github/actions/start-sut, image loaded, no rebuild) and runs its suite against it.
+#   2. lint (Cypress), lint-playwright-csharp (build + format) and lint-puppeteer-python (flake8 + bridge syntax
+#      check): run once the image is built.
+#   3. e2e-cypress-javascript / e2e-playwright-csharp / e2e-puppeteer-python: only after their lint/build job
+#      passes, all three in parallel. Each one runs on its own runner, deploys its own SUT instance with that same
+#      sut/docker-compose.yml (.github/actions/start-sut, image loaded, no rebuild) and runs its suite against it.
 #
 # Triggers: push only on main + pull_request, so a PR branch is built once (on the PR), not once per trigger.
 name: CI
@@ -25,6 +26,7 @@ concurrency:
 
 env:
   NODE_VERSION: '22'
+  PYTHON_VERSION: '3.12'
   DOTNET_VERSION: '8.0.x'
   SUT_COMPOSE_PROJECT: fullteaching
   SUT_URL: https://localhost:5000
@@ -254,6 +256,115 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: sut-docker-logs-playwright-csharp
+          path: ${{ runner.temp }}/sut-logs.txt
+          if-no-files-found: ignore
+
+      - name: Tear down the SUT
+        if: always()
+        run: |
+          [ -f sut/docker-compose.yml ] || exit 0
+          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" down -v || true
+
+  lint-puppeteer-python:
+    name: Puppeteer Python lint
+    runs-on: ubuntu-latest
+    needs: [build-sut]
+    defaults:
+      run:
+        working-directory: puppeteer-python
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: puppeteer-python/pyproject.toml
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pip install .
+
+      - name: Lint (flake8)
+        run: python -m flake8
+
+      - name: Check the Puppeteer bridge syntax
+        run: node --check bridge/server.mjs
+
+  e2e-puppeteer-python:
+    name: "E2E: Puppeteer + Python"
+    runs-on: ubuntu-latest
+    needs: [lint-puppeteer-python]
+    timeout-minutes: 60
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: puppeteer-python/pyproject.toml
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: puppeteer-python/bridge/package-lock.json
+
+      - name: Install Python dependencies
+        working-directory: puppeteer-python
+        run: pip install .
+
+      # Puppeteer drives the Chrome preinstalled on the runner (channel "chrome"): no browser download.
+      - name: Install the Puppeteer bridge
+        working-directory: puppeteer-python/bridge
+        run: PUPPETEER_SKIP_DOWNLOAD=true npm ci
+
+      - name: Start the SUT
+        uses: ./.github/actions/start-sut
+        with:
+          project: ${{ env.SUT_COMPOSE_PROJECT }}
+          sut-url: ${{ env.SUT_URL }}
+
+      - name: Run Puppeteer tests
+        working-directory: puppeteer-python
+        # JUnit XML (results/puppeteer.xml), coverage and the log file are configured in pyproject.toml.
+        run: python -m pytest
+        env:
+          SUT_URL: ${{ env.SUT_URL }}
+
+      - name: Test summary
+        if: always()
+        run: python3 .github/scripts/test_summary.py --title "Puppeteer + Python" --format junit 'puppeteer-python/results/*.xml'
+
+      - name: Upload JUnit results and logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: puppeteer-python-reports
+          path: |
+            puppeteer-python/results/
+            puppeteer-python/logs/
+          if-no-files-found: ignore
+
+      - name: Dump SUT logs
+        if: failure()
+        run: |
+          # sut/ is missing if an earlier step (e.g. setup-sut.sh) failed.
+          [ -f sut/docker-compose.yml ] || { echo "sut/ not found, nothing to dump"; exit 0; }
+          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
+          tail -200 "$RUNNER_TEMP/sut-logs.txt"
+
+      - name: Upload SUT logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: sut-docker-logs-puppeteer-python
           path: ${{ runner.temp }}/sut-logs.txt
           if-no-files-found: ignore
 
