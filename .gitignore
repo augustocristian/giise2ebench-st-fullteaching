@@ -13,16 +13,39 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+.eggs/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .venv/
 venv/
+env/
+dist/
+build/
 coverage.xml
 htmlcov/
 .coverage
+.coverage.*
 logs/
 poetry.toml
+
+##############################
+## Logs & local secrets/config
+##############################
+*.log
+.env
+.env.*
+!.env.example
+
+##############################
+## Editor/OS backup & junk files
+##############################
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
 
 ##############################
 ## Eclipse
@@ -68,3 +91,4 @@ out/
 ##############################
 .DS_Store
 Thumbs.db
+desktop.ini
