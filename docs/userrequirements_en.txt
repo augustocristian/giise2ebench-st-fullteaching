@@ -1,0 +1,16 @@
+(1)	All users can see the courses they are enrolled in.
+(2)	All users can access any of the courses, where they can see the classes ordered by date.
+(3)	The teacher can create courses, giving them a title and adding an image if desired.
+(4)	The teacher can create a new class within a course and provide: (4.1) a title, (4.2) a description, (4.3) a date and time, (4.4) invited students, (4.5) related files, and (4.6) enable the forum for the class.
+(5) The student should be able to interact with the courses on their dashboard: (5.1) clearly see the associated information, (5.2) add comments to the forum if it is enabled for the course, and (5.3) download attached files if they exist for the course.
+(6)	The teacher should be able to conduct classes. Specifically, he can: (6.1) start a class, (6.2) share/block audio, (6.3) share/block webcam, (6.4) view associated class information, including its title, current duration, current attendees, required intervention times, and waiting intervention times, (6.5) communicate via chat, (6.6) pass intervention turn to students, (6.7) revoke control of intervention turn from students, and (6.8) end the class.
+(7)	The student should be able to attend classes. Specifically, they can: (7.1) enter the classroom when the teacher has started it, (7.2) receive the audio and video feed of the teacher, (7.3) mute the audio and video feed of the teacher, (7.4) view information associated with the class, including: title, current duration, and current attendees, (7.5) communicate via chat, (7.6) ask for an intervention turn, (7.7) cancel a previously requested turn, and (7.8) share their audio and webcam with other attendees if their speaking request is granted.
+(8)	The users can register using their email.
+(9)	The users can log in to the application.
+(10) The teacher can edit the attributes of a course at any time.
+(11) The teacher can edit the attributes of a class at any time.
+(12) The users are able to modify their profiles: username, email, password, and profile image.
+(13) The teacher can add a description to the courses: text with different formats, images, or links.
+(14) All users are required to pass a CAPTCHA during registration.
+(15) All users should have access to a calendar displaying all their classes.
+(16) The teacher can add students to a course in different ways: (16.1) using their unique email address, (16.2) using multiple email addresses, or (16.3) using a file (txt, excel, Word, PDF…).
