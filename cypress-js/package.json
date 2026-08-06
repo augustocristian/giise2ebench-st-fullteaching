@@ -1,0 +1,23 @@
+{
+  "name": "fullteaching-e2e-cypress-js",
+  "version": "1.1.1",
+  "private": true,
+  "description": "FullTeaching E2E test suite implemented with Cypress and JavaScript, a RETORCH benchmark counterpart of the selenium-java suite",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "cy:verify": "cypress verify",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "cypress": "15.20.0",
+    "eslint": "10.8.0",
+    "eslint-plugin-cypress": "7.0.0"
+  },
+  "author": "Cristian Augusto <augustocristian@uniovi.es>",
+  "license": "UNLICENSED"
+}

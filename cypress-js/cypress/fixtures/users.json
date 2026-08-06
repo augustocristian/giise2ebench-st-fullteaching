@@ -1,0 +1,4 @@
+[
+  { "mail": "teacher@gmail.com", "password": "pass", "role": "TEACHER" },
+  { "mail": "student1@gmail.com", "password": "pass", "role": "STUDENT" }
+]
