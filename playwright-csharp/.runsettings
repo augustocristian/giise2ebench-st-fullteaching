@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <!-- Playwright drives real browser contexts per test; keep NUnit from running fixtures
+         in parallel unless you've verified the SUT and your machine can take the load. -->
+    <MaxCpuCount>1</MaxCpuCount>
+  </RunConfiguration>
+  <NUnit>
+    <NumberOfTestWorkers>1</NumberOfTestWorkers>
+  </NUnit>
+</RunSettings>

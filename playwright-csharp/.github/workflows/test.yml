@@ -1,0 +1,33 @@
+name: test-playwright-csharp
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    name: "Build & lint"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: playwright-csharp
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Check formatting
+        run: dotnet format --verify-no-changes --no-restore
+      # Running the suite for real additionally requires:
+      #   1. A running FullTeaching SUT (see ../deploy.sh / ../deploy.ps1) with SUT_URL pointing at it.
+      #   2. The Playwright browsers (pwsh bin/Debug/net8.0/playwright.ps1 install --with-deps chromium).
+      # This is intentionally not wired into CI here, mirroring how selenium-java's E2E job
+      # also depends on a separately provisioned SUT (see ../selenium-java/Jenkinsfile).
