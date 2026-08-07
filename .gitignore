@@ -1,0 +1,83 @@
+##############################
+## Fetched folders (see setup-sut.sh / setup-sut.ps1 on the migrate-test-suite branch)
+##############################
+# These are cloned on demand from
+# https://github.com/giis-uniovi/retorch-st-fullteaching
+# and must never be committed to this repo.
+/sut/
+/selenium-java/
+
+##############################
+## .NET / Playwright (playwright-csharp)
+##############################
+bin/
+obj/
+*.user
+*.suo
+TestResults/
+playwright-report/
+.playwright/
+
+##############################
+## Logs & local secrets/config
+##############################
+*.log
+.env
+.env.*
+!.env.example
+
+##############################
+## Editor/OS backup & junk files
+##############################
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+
+##############################
+## Eclipse
+##############################
+.settings/
+.metadata/
+.classpath
+.project
+.factorypath
+.loadpath
+.recommenders/
+.target/
+.tern-project
+.texlipse
+.springBeans
+.cache-main
+.scala_dependencies
+.worksheet
+tmp/
+local.properties
+
+##############################
+## Visual Studio Code
+##############################
+.vscode/
+*.code-workspace
+.history/
+
+##############################
+## JetBrains (Rider / IntelliJ IDEA) / Visual Studio
+##############################
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+.shelf/
+.vs/
+
+##############################
+## OS
+##############################
+.DS_Store
+Thumbs.db
+desktop.ini
