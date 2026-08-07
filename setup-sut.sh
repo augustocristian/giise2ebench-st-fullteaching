@@ -43,6 +43,18 @@ shopt -s dotglob
 mv "$TMP_DIR/repo"/* "$TEST_DIR"/
 shopt -u dotglob
 
+# Upstream builds the SUT from ./sut relative to selenium-java/, but here sut/ lives at the repo
+# root (selenium-java/sut must not exist). Point the compose build context at ../sut instead.
+COMPOSE_FILE="$TEST_DIR/docker-compose.yml"
+if [ -f "$COMPOSE_FILE" ]; then
+    sed -i.bak 's#^\([[:space:]]*context:[[:space:]]*\)\./sut[[:space:]]*$#\1../sut#' "$COMPOSE_FILE"
+    rm -f "$COMPOSE_FILE.bak"
+    if ! grep -qE '^[[:space:]]*context:[[:space:]]*\.\./sut[[:space:]]*$' "$COMPOSE_FILE"; then
+        echo "ERROR: could not point the build context of $COMPOSE_FILE at ../sut (upstream layout changed?)." >&2
+        exit 1
+    fi
+fi
+
 echo "==> Done"
 echo "    sut/           -> $SUT_DIR"
 echo "    selenium-java/ -> $TEST_DIR"

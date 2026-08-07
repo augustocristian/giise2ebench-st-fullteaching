@@ -1,0 +1,37 @@
+version: 2
+
+updates:
+  # Cypress + JavaScript suite
+  - package-ecosystem: npm
+    directory: /cypress-js
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # Setting labels replaces Dependabot's defaults, so "dependencies" is listed explicitly.
+    labels:
+      - dependencies
+      - javascript
+      - cypress
+    groups:
+      cypress-js-minor-and-patch:
+        update-types: [minor, patch]
+
+  # Playwright + C# suite
+  - package-ecosystem: nuget
+    directory: /playwright-csharp
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - csharp
+      - playwright
+    groups:
+      # Microsoft.Playwright and Microsoft.Playwright.NUnit must always share the same version.
+      playwright:
+        patterns:
+          - "Microsoft.Playwright*"
+      playwright-csharp-minor-and-patch:
+        update-types: [minor, patch]
+        exclude-patterns:
+          - "Microsoft.Playwright*"
