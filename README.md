@@ -6,6 +6,8 @@ FullTeaching: Teaching application with OpenVidu with the requirements and the f
 ---
 
 <p align="center">
-  <img src="img/giis-logo.svg" alt="GIIS logo" width="48" style="vertical-align: middle;"/>
-  &nbsp;GIIS - Software Engineering Research Group, University of Oviedo
+  <a href="https://giis.uniovi.es/">
+    <img src="img/giis-logo.svg" alt="GIIS logo" width="32" align="absmiddle"/>
+    &nbsp;GIIS - Software Engineering Research Group, University of Oviedo
+  </a>
 </p>
