@@ -23,8 +23,8 @@
 
   <ItemGroup>
     <!-- Keep Microsoft.Playwright and Microsoft.Playwright.NUnit on the same version. -->
-    <PackageReference Include="Microsoft.Playwright" Version="1.61.0" />
-    <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.61.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.65.1" />
+    <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.65.1" />
     <PackageReference Include="NUnit" Version="5.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
