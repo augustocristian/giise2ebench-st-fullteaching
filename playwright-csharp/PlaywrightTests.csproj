@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>FullTeaching.E2E</RootNamespace>
+    <AssemblyName>FullTeaching.E2E.PlaywrightTests</AssemblyName>
+
+    <!-- Static analysis: the "recommended" CA rule set plus IDE style rules, enforced at build time. -->
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- CA1822: NUnit test methods/helpers are conventionally instance members.
+         CA1305: two culture-sensitive ToString calls in Tests/ (date formats) still to be fixed by their owners; remove this entry once they are. -->
+    <NoWarn>$(NoWarn);CA1822;CA1305</NoWarn>
+  </PropertyGroup>
+
+  <!-- Opt-in strict mode for CI / local gate: dotnet build -c Release -p:STRICT_BUILD=true -->
+  <PropertyGroup Condition="'$(STRICT_BUILD)' == 'true'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Keep Microsoft.Playwright and Microsoft.Playwright.NUnit on the same version. -->
+    <PackageReference Include="Microsoft.Playwright" Version="1.61.0" />
+    <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.61.0" />
+    <PackageReference Include="NUnit" Version="4.6.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

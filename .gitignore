@@ -42,6 +42,17 @@ logs/
 poetry.toml
 
 ##############################
+## .NET / Playwright (playwright-csharp)
+##############################
+bin/
+obj/
+*.user
+*.suo
+TestResults/
+playwright-report/
+.playwright/
+
+##############################
 ## Logs & local secrets/config
 ##############################
 *.log
@@ -76,7 +87,6 @@ poetry.toml
 .cache-main
 .scala_dependencies
 .worksheet
-bin/
 tmp/
 local.properties
 
@@ -88,7 +98,7 @@ local.properties
 .history/
 
 ##############################
-## JetBrains (PyCharm / IntelliJ IDEA)
+## JetBrains (PyCharm / Rider / IntelliJ IDEA) / Visual Studio
 ##############################
 .idea/
 *.iml
@@ -97,6 +107,7 @@ local.properties
 out/
 .idea_modules/
 .shelf/
+.vs/
 
 ##############################
 ## OS

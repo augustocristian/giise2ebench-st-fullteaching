@@ -29,8 +29,14 @@ $CloneDir = Join-Path $TmpDir "repo"
 try {
     Write-Host "==> Cloning $RepoUrl"
     # core.longpaths avoids "Filename too long" checkout failures on Windows
+    # Windows PowerShell 5.1 turns anything git writes to stderr (its progress output) into a
+    # terminating error under $ErrorActionPreference = "Stop"; check the exit code instead.
+    $PrevPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
     git -c core.longpaths=true clone --depth 1 --single-branch $RepoUrl $CloneDir
-    if ($LASTEXITCODE -ne 0) { throw "git clone failed" }
+    $CloneExit = $LASTEXITCODE
+    $ErrorActionPreference = $PrevPreference
+    if ($CloneExit -ne 0) { throw "git clone failed" }
 
     $ClonedSut = Join-Path $CloneDir "sut"
     if (-not (Test-Path $ClonedSut)) {
@@ -47,6 +53,19 @@ try {
     New-Item -ItemType Directory -Path $TestDir -Force | Out-Null
     Get-ChildItem -Force -Path $CloneDir | ForEach-Object {
         Move-Item -Path $_.FullName -Destination $TestDir
+    }
+
+    # Upstream builds the SUT from ./sut relative to selenium-java/, but here sut/ lives at the repo
+    # root (selenium-java\sut must not exist). Point the compose build context at ../sut instead.
+    $ComposeFile = Join-Path $TestDir "docker-compose.yml"
+    if (Test-Path $ComposeFile) {
+        $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        $Content = [System.IO.File]::ReadAllText($ComposeFile)
+        $Patched = $Content -replace '(?m)^([ \t]*context:[ \t]*)\./sut[ \t]*(\r?)$', '${1}../sut${2}'
+        if ($Patched -notmatch '(?m)^[ \t]*context:[ \t]*\.\./sut[ \t]*\r?$') {
+            throw "Could not point the build context of $ComposeFile at ../sut (upstream layout changed?)."
+        }
+        [System.IO.File]::WriteAllText($ComposeFile, $Patched, $Utf8NoBom)
     }
 
     Write-Host "==> Done"

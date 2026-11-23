@@ -1,0 +1,58 @@
+name: Start the SUT
+description: >
+  Deploys one FullTeaching SUT instance with the compose file shipped in the cloned SUT (sut/docker-compose.yml),
+  using the app image built once by the build-sut job (artifact "sut-image"), and waits until it answers on SUT_URL.
+  Every job calling this action gets its own isolated instance on its own runner.
+
+inputs:
+  project:
+    description: Docker compose project name (must match the one used by the build-sut job)
+    default: fullteaching
+  sut-url:
+    description: URL the SUT must answer on before this action succeeds
+    default: https://localhost:5000
+  image-artifact:
+    description: Name of the artifact holding the docker-saved SUT image (uploaded by the build-sut job)
+    default: sut-image
+
+runs:
+  using: composite
+  steps:
+    # Fetches sut/ (compose file + sources) and selenium-java/ (both gitignored, never committed).
+    - name: Fetch the SUT
+      shell: bash
+      run: bash ./setup-sut.sh
+
+    - name: Download the SUT image
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.image-artifact }}
+        path: ${{ runner.temp }}/sut-image
+
+    - name: Load the SUT image
+      shell: bash
+      run: gunzip -c "$RUNNER_TEMP"/sut-image/full-teaching-sut.tar.gz | docker load
+
+    # --no-build: the app image is already loaded (the compose file builds it from sut/Dockerfile otherwise).
+    # mysql and openvidu are pulled from Docker Hub as declared in sut/docker-compose.yml.
+    - name: Start the SUT
+      shell: bash
+      run: docker compose -f sut/docker-compose.yml -p "${{ inputs.project }}" up -d --no-build
+
+    - name: Wait for the SUT
+      shell: bash
+      env:
+        SUT_URL: ${{ inputs.sut-url }}
+      run: |
+        COMPOSE="docker compose -f sut/docker-compose.yml -p ${{ inputs.project }}"
+        for i in $(seq 1 60); do
+          if $COMPOSE logs full-teaching 2>&1 | grep -q "Started Application" \
+             && curl -ksf -o /dev/null "$SUT_URL"; then
+            echo "SUT ready after ~$((i*5))s"; exit 0
+          fi
+          sleep 5
+        done
+        echo "::error::SUT did not become ready within 5 minutes"
+        $COMPOSE ps -a
+        $COMPOSE logs --tail 100
+        exit 1
