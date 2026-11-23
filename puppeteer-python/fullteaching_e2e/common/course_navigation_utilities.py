@@ -15,6 +15,9 @@ from fullteaching_e2e.utils import element, wait
 
 logger = logging.getLogger(__name__)
 
+# How long one click on a tab may take to show its content before the click is repeated.
+TAB_CLICK_RETRY_MS = 4000
+
 
 def _course_items(user: BrowserUser) -> Locator:
     return user.locator(c.COURSE_LIST_ITEM)
@@ -172,11 +175,21 @@ async def wait4_tab_content(user: BrowserUser, icon_selector: str) -> Locator:
 
 
 async def go2_tab(user: BrowserUser, icon_selector: str) -> None:
-    """Clicks a course tab and waits for its content to render."""
-    tab = get_tab_element_from_icon(user, icon_selector)
+    """Clicks a course tab and waits for its content to render.
+
+    The course view re-renders its tabs after some actions (for example saving the description), and a click
+    that lands on the DOM being replaced never activates the tab, so the click is repeated until the content
+    shows up.
+    """
     logger.info("Navigating to tab with id: %s", await get_tab_id(user, icon_selector))
-    await tab.click()
-    await wait4_tab_content(user, icon_selector)
+
+    async def open_tab() -> bool:
+        await get_tab_element_from_icon(user, icon_selector).click()
+        content = await get_tab_content(user, icon_selector)
+        await content.with_timeout(TAB_CLICK_RETRY_MS).wait_for("visible")
+        return True
+
+    await wait.poll_until(open_tab, f"tab '{icon_selector}' to open", user.timeout_ms / 1000)
 
 
 async def is_user_in_attenders_list(user: BrowserUser, user_name: str) -> bool:

@@ -14,6 +14,7 @@ dependencies = [
     "pytest-asyncio==1.5.0",
     "pytest-cov==7.1.0",
     "pytest-html==4.2.0",
+    "pytest-rerunfailures==16.7",
     "flake8==7.5.0",
 ]
 
@@ -39,6 +40,7 @@ addopts = "--cov=fullteaching_e2e --cov-report=xml:coverage.xml --cov-branch --j
 markers = [
     "e2e: browser tests against the FullTeaching SUT - require Chrome, the Node bridge and a running SUT.",
     "bridge: smoke tests of the Python-Node Puppeteer bridge (tests/bridge) - no SUT required.",
+    "media: tests that need live camera/microphone media: they run in their own Chrome and are re-run once on failure.",
     "video: live video session tests (several browsers, fake camera and microphone, OpenVidu).",
     "echat: chat tests inside a live video session.",
     "forum: course forum tests.",

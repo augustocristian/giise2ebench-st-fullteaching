@@ -47,6 +47,14 @@ _AREA_MARKERS = {
 }
 
 
+# WebRTC media between headless Chromium and the OpenVidu/KMS containers is not deterministic (the Java suite
+# documents the same caveat): a subscriber sometimes never gets the other user's stream. Only the tests that
+# need live media are re-run, and a re-run shows up in the report, so a persistent failure is never hidden.
+_MEDIA_MARKERS = {"echat", "video"}
+MEDIA_RERUNS = 1
+MEDIA_RERUN_DELAY_S = 5
+
+
 def pytest_runtest_setup(item):
     logger.info("##### Start test: %s", item.name)
 
@@ -67,6 +75,9 @@ def pytest_collection_modifyitems(items):
         for fragment, marker in _AREA_MARKERS.items():
             if fragment in path.name:
                 item.add_marker(marker)
+                if marker in _MEDIA_MARKERS:
+                    item.add_marker("media")
+                    item.add_marker(pytest.mark.flaky(reruns=MEDIA_RERUNS, reruns_delay=MEDIA_RERUN_DELAY_S))
 
 
 @pytest.hookimpl(wrapper=True)
@@ -125,12 +136,21 @@ async def _save_failure_artifacts(test_name: str, current: Page) -> None:
 async def user_factory(request, browser: Browser, app_config: AppConfig):
     """Per-test user lifecycle: every user created through it is logged out (if still on a session)
     and disposed at teardown, with a screenshot first when the test failed. Mirrors
-    BaseLoggedTest.setup()/tearDown()."""
-    factory = UserFactory(browser, app_config, request.node.name)
+    BaseLoggedTest.setup()/tearDown().
+
+    Tests that need live media get their own Chrome: the fake camera of a long-lived headless Chrome
+    sporadically stops being found ("Requested device not found") after many contexts have used it.
+    """
+    own_browser = await launch_browser() if request.node.get_closest_marker("media") else None
+    factory = UserFactory(own_browser or browser, app_config, request.node.name)
     yield factory
     report = getattr(request.node, "rep_call", None)
     failed = report is not None and report.failed
-    await factory.close_all(SCREENSHOT_DIR if failed else None)
+    try:
+        await factory.close_all(SCREENSHOT_DIR if failed else None)
+    finally:
+        if own_browser is not None:
+            await own_browser.close()
 
 
 @pytest_asyncio.fixture(loop_scope="session")

@@ -430,10 +430,15 @@ const methods = {
   },
 
   async "element.waitForText"(params) {
+    // Whitespace is normalised on both sides (runs of spaces, newlines and non-breaking spaces
+    // collapse to one space), like Playwright's text assertions: Quill, for one, renders every
+    // space of the rich text as &nbsp;.
+    const normalize = `(s) => (s ?? "").replace(/\\s+/g, " ").trim()`;
+    const wanted = JSON.stringify(params.text.replace(/\s+/g, " ").trim());
     const handle = await getPage(params).waitForFunction(
       `(${resolverSource})(${JSON.stringify(params.chain)}).some((el) => ` +
-        `${params.exact ? `(el.textContent ?? "").trim() === ${JSON.stringify(params.text)}` :
-          `(el.textContent ?? "").includes(${JSON.stringify(params.text)})`})`,
+        `${params.exact ? `(${normalize})(el.textContent) === ${wanted}` :
+          `(${normalize})(el.textContent).includes(${wanted})`})`,
       { timeout: params.timeout ?? DEFAULT_TIMEOUT_MS },
     );
     await handle.dispose();

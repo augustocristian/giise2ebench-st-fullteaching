@@ -148,7 +148,7 @@ jobs:
         run: |
           # sut/ is missing if an earlier step (e.g. setup-sut.sh) failed.
           [ -f sut/docker-compose.yml ] || { echo "sut/ not found, nothing to dump"; exit 0; }
-          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
+          docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p "$SUT_COMPOSE_PROJECT" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
           tail -200 "$RUNNER_TEMP/sut-logs.txt"
 
       - name: Upload SUT logs
@@ -163,7 +163,7 @@ jobs:
         if: always()
         run: |
           [ -f sut/docker-compose.yml ] || exit 0
-          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" down -v || true
+          docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p "$SUT_COMPOSE_PROJECT" down -v || true
 
   lint-playwright-csharp:
     name: Playwright C# build & format
@@ -248,7 +248,7 @@ jobs:
         run: |
           # sut/ is missing if an earlier step (e.g. setup-sut.sh) failed.
           [ -f sut/docker-compose.yml ] || { echo "sut/ not found, nothing to dump"; exit 0; }
-          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
+          docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p "$SUT_COMPOSE_PROJECT" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
           tail -200 "$RUNNER_TEMP/sut-logs.txt"
 
       - name: Upload SUT logs
@@ -263,7 +263,7 @@ jobs:
         if: always()
         run: |
           [ -f sut/docker-compose.yml ] || exit 0
-          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" down -v || true
+          docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p "$SUT_COMPOSE_PROJECT" down -v || true
 
   lint-puppeteer-python:
     name: Puppeteer Python lint
@@ -357,7 +357,7 @@ jobs:
         run: |
           # sut/ is missing if an earlier step (e.g. setup-sut.sh) failed.
           [ -f sut/docker-compose.yml ] || { echo "sut/ not found, nothing to dump"; exit 0; }
-          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
+          docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p "$SUT_COMPOSE_PROJECT" logs --no-color > "$RUNNER_TEMP/sut-logs.txt" 2>&1 || true
           tail -200 "$RUNNER_TEMP/sut-logs.txt"
 
       - name: Upload SUT logs
@@ -372,4 +372,4 @@ jobs:
         if: always()
         run: |
           [ -f sut/docker-compose.yml ] || exit 0
-          docker compose -f sut/docker-compose.yml -p "$SUT_COMPOSE_PROJECT" down -v || true
+          docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p "$SUT_COMPOSE_PROJECT" down -v || true

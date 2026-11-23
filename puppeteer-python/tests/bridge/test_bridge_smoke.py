@@ -154,6 +154,10 @@ async def test_waits(demo: Page):
     assert await demo.wait_for_function("() => document.title") == "Bridge page"
     await demo.locator("#missing").wait_for("hidden")
     await demo.locator("#missing").wait_for("detached")
+    # Whitespace is normalised on both sides, so non-breaking spaces (Quill's output) match plain ones.
+    await demo.evaluate(r"() => { document.getElementById('late').textContent = ' New\u00a0Title\n'; }")
+    await late.wait_for_text("New Title", exact=True)
+    await late.wait_for_text("New   Title")
     await demo.evaluate("() => document.getElementById('late').remove()")
     await late.wait_for("detached")
 

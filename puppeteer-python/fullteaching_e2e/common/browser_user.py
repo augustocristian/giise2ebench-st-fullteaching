@@ -93,7 +93,9 @@ async def setup_browser(browser: Browser, app_url: str, test_name: str, user_ide
     Mirrors ``BaseLoggedTest.setupBrowser(browser, testName, userIdentifier, secondsOfWait)``.
     """
     logger.info("Starting the configuration of the browser context for %s", user_identifier)
-    context = await browser.new_context()
+    # Camera and microphone are granted for the SUT's origin up front: --use-fake-ui-for-media-stream alone
+    # does not always cover an isolated context, and the second user to join then gets "Requested device not found".
+    context = await browser.new_context(media_origin=app_url)
     try:
         page = await context.new_page()
         user = BrowserUser(user_identifier, browser, context, page, app_url, seconds_of_wait * 1000, test_name)

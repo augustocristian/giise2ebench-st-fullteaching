@@ -186,10 +186,14 @@ class UserFactory:
 
 
 async def _screenshot(user: BrowserUser, directory: Path) -> None:
-    """Best-effort failure screenshot; never raises, so it cannot mask the original failure."""
+    """Best-effort failure evidence (screenshot + browser console/network errors); never raises, so it
+    cannot mask the original failure."""
     try:
         safe_name = re.sub(r"[^\w.-]+", "_", f"{user.test_name}-{user.client_data}")[:120]
         path = await user.page.screenshot(directory / f"{safe_name}.png")
         logger.error("Screenshot of %s saved to %s", user.client_data, path)
+        for entry in await user.page.diagnostics(clear=False):
+            if entry.get("kind") != "console.log":
+                logger.error("[%s] browser %s: %s", user.client_data, entry.get("kind"), entry.get("text"))
     except Exception as error:
-        logger.warning("[%s] could not save the failure screenshot: %s", user.client_data, error)
+        logger.warning("[%s] could not save the failure evidence: %s", user.client_data, error)

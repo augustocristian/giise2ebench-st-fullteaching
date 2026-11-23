@@ -8,8 +8,12 @@ async def all_of(locator: Locator) -> list[Locator]:
 
 
 async def texts(locator: Locator) -> list[str]:
-    """Stripped text of every element the locator matches right now, in DOM order."""
-    return [(await item.text()).strip() for item in await all_of(locator)]
+    """Stripped text of every element the locator matches right now, in DOM order.
+
+    Read in one round trip and without waiting, so rows added or removed meanwhile cannot make it
+    block on an element that is already gone.
+    """
+    return [text.strip() for text in await locator.all_texts()]
 
 
 async def find_row_by_child_text(rows: Locator, child_selector: str, text: str) -> Locator | None:
