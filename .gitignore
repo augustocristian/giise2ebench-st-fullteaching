@@ -8,6 +8,58 @@
 /selenium-java/
 
 ##############################
+## Node / Cypress (cypress-js)
+##############################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+cypress/downloads/
+cypress/screenshots/
+cypress/videos/
+.npm/
+
+##############################
+## Python (puppeteer-python)
+##############################
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+dist/
+build/
+coverage.xml
+htmlcov/
+.coverage
+.coverage.*
+logs/
+poetry.toml
+
+##############################
+## Logs & local secrets/config
+##############################
+*.log
+.env
+.env.*
+!.env.example
+
+##############################
+## Editor/OS backup & junk files
+##############################
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+
+##############################
 ## Eclipse
 ##############################
 .settings/
@@ -51,3 +103,5 @@ out/
 ##############################
 .DS_Store
 Thumbs.db
+desktop.ini
+results/
