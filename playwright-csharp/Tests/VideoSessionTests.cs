@@ -19,7 +19,8 @@ public class VideoSessionTests : BaseTest
     private const string MainVideoContainer = "div.participant";
     private const string SmallVideoContainer = "div.participant-small";
     private const string RaiseHandIcon = "xpath=//div[@id='div-header-buttons']//i[text() = 'record_voice_over']";
-    private const string InterventionButton = "xpath=//a[contains(@class, 'usr-btn')]";
+    // A <button class="usr-btn"> in the current SUT (it was an <a> in older builds).
+    private const string InterventionButton = "#div-header-buttons .usr-btn";
 
     /// <summary>
     /// Evaluates to true once the first &lt;video&gt; inside the given container has an active
@@ -86,7 +87,9 @@ public class VideoSessionTests : BaseTest
 
     private static async Task ExpectVideoPlayingAsync(BrowserUser user, string containerSelector)
     {
-        await Expect(user.Page.Locator($"{containerSelector} video")).ToBeVisibleAsync(MediaVisible);
+        // With the floor granted a container holds the streams of both users: the check (like the script
+        // below, which reads getElementsByTagName('video')[0]) is on the first one.
+        await Expect(user.Page.Locator($"{containerSelector} video").First).ToBeVisibleAsync(MediaVisible);
         await using var streamActive = await user.Page.WaitForFunctionAsync(
             VideoHasActiveStreamScript,
             containerSelector,

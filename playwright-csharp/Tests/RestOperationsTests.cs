@@ -111,7 +111,8 @@ public class RestOperationsTests : BaseTest
         await page.Locator(Selectors.RichTextEditor).FillAsync(TestCourseInfo);
         await page.Locator(Constants.EditDescriptionSaveButton).ClickAsync();
 
-        await Expect(page.Locator(Selectors.RichTextParagraph)).ToHaveTextAsync(TestCourseInfo);
+        // The saved view and the (hidden) preview both render the description: take the visible one.
+        await Expect(page.Locator(Selectors.RichTextParagraph).Filter(new() { Visible = true })).ToHaveTextAsync(TestCourseInfo);
         await DeleteCourseAsync(CourseName);
     }
 
@@ -247,7 +248,8 @@ public class RestOperationsTests : BaseTest
         await Expect(page.Locator(Selectors.SubgroupFileName)).ToHaveTextAsync(editedFileName);
 
         // Delete the group
-        await page.Locator(Selectors.DeleteFileGroupIcon).ClickAsync();
+        // Nested file groups carry the same icon; the first one in the DOM is the group's own.
+        await page.Locator(Selectors.DeleteFileGroupIcon).First.ClickAsync();
         await Expect(Warning).ToBeVisibleAsync();
 
         await DeleteCourseAsync(CourseName);

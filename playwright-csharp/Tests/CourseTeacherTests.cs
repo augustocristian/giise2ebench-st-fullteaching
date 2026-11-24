@@ -27,8 +27,9 @@ public class CourseTeacherTests : BaseTest
         public const string Content = Constants.EditDescriptionContentBox;
         // Quill builds a span picker and keeps the hidden <select> it replaces, both with class ql-header.
         public const string HeaderPicker = "span.ql-header";
-        public const string PickerOptions = ".ql-picker-options";
-        public const string HeadingOption = ".ql-picker-item[data-label=\"Heading\"]";
+        // Every toolbar picker has its own options list: scope them to the header picker.
+        public const string PickerOptions = HeaderPicker + " .ql-picker-options";
+        public const string HeadingOption = HeaderPicker + " .ql-picker-item[data-label=\"Heading\"]";
         // The preview toggle is the only floated (left) control of the editor's button row.
         public const string PreviewButton = "#textEditorRowButtons .left";
         public const string Rendered = Constants.DescriptionView;
@@ -212,7 +213,8 @@ public class CourseTeacherTests : BaseTest
 
     private static async Task ExpectDescriptionRenderedAsync(IPage page)
     {
-        var rendered = page.Locator(DescriptionEditor.Rendered);
+        // The saved view and the (hidden) preview both carry the class: the one being shown is the visible one.
+        var rendered = page.Locator(DescriptionEditor.Rendered).Filter(new() { Visible = true });
         await Expect(rendered).ToBeVisibleAsync();
         await Expect(rendered.Locator("h1")).ToHaveTextAsync(DescriptionEditor.Title);
         await Expect(rendered.Locator("h2")).ToHaveTextAsync(DescriptionEditor.SubHeading);
