@@ -58,7 +58,8 @@ function rewriteHomeDescription() {
 
   // Injected as HTML because typing formatted rich text through the Quill toolbar is flaky.
   cy.get(QUILL_EDITOR).invoke("html", "<h1>New Title</h1><h2>New SubHeading</h2><p>This is the normal content</p>");
-  cy.get("#textEditorRowButtons a").eq(1).click();
+  // The preview toggle is the only floated (left) control of the editor's button row.
+  cy.get("#textEditorRowButtons .left").click();
 
   cy.get(DESCRIPTION_VIEW).should("be.visible");
   assertDescriptionRendered("preview");

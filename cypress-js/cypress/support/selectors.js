@@ -26,13 +26,13 @@ const common = {
   loginMenuLink: "navbar nav ul li:nth-child(2) a",
 };
 
+// The SUT's modals are native <dialog class="modal my-modal-class"> elements (see native-dialog.directive.ts):
+// showModal() adds the `open` attribute and closing removes it, so there is no overlay element or opacity style.
 const modal = {
-  // was: //div[contains(@class, 'modal-overlay') and contains(@style, 'opacity: 0.5')]
-  overlayOpening: ".modal-overlay[style*='opacity: 0.5']",
-  open: ".modal.my-modal-class.open",
-  overlay: ".modal-overlay",
-  /** Selector of the dialog `dialogId` once its close animation has finished. */
-  closed: (dialogId) => `#${dialogId}.my-modal-class[style*="opacity: 0"][style*="display: none"]`,
+  /** Any dialog that is currently shown. */
+  open: "dialog.modal.my-modal-class[open]",
+  /** The dialog `dialogId` while it is shown. */
+  openById: (dialogId) => `dialog#${dialogId}[open]`,
 };
 
 const login = {
@@ -50,8 +50,9 @@ const settings = {
 };
 
 const course = {
-  dashboardTitle: ".dashboard-title",
-  list: ".dashboard-col",
+  // The dashboard has two ".dashboard-col" columns (MY COURSES and MY CALENDAR): scope to the one with the list.
+  dashboardTitle: ".dashboard-col:has(#course-list) .dashboard-title",
+  list: ".dashboard-col:has(#course-list)",
   listId: "#course-list",
   listItem: ".course-list-item",
   /** Title inside a course <li> (distinct from `listCourseTitle`, kept as in the Java source). */
@@ -69,7 +70,8 @@ const course = {
   deleteCheck: "#label-delete-checkbox",
   deleteButton: "#delete-course-btn",
   editDescriptionButton: "#edit-course-info",
-  editDescriptionContent: ".ui-editor-content",
+  // Quill: the editable box and the rendered description both carry ql-editor.
+  editDescriptionContent: ".ql-editor:not(.ql-editor-custom)",
   editDescriptionSave: "#send-info-btn",
 };
 

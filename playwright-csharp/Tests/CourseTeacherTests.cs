@@ -25,11 +25,12 @@ public class CourseTeacherTests : BaseTest
     private static class DescriptionEditor
     {
         public const string Content = Constants.EditDescriptionContentBox;
-        public const string HeaderPicker = ".ql-header";
+        // Quill builds a span picker and keeps the hidden <select> it replaces, both with class ql-header.
+        public const string HeaderPicker = "span.ql-header";
         public const string PickerOptions = ".ql-picker-options";
         public const string HeadingOption = ".ql-picker-item[data-label=\"Heading\"]";
-        public const string ActionLinks = "#textEditorRowButtons a";
-        public const int PreviewLinkIndex = 1;
+        // The preview toggle is the only floated (left) control of the editor's button row.
+        public const string PreviewButton = "#textEditorRowButtons .left";
         public const string Rendered = Constants.DescriptionView;
 
         public const string Title = "New Title";
@@ -202,7 +203,7 @@ public class CourseTeacherTests : BaseTest
         // Quill offers no UI path to type structured (h1/h2/p) content in one go, so the
         // editor's DOM is set directly; Quill's mutation observer syncs it into its model.
         await editor.EvaluateAsync("(el, html) => { el.innerHTML = html; }", DescriptionEditor.Html);
-        await page.Locator(DescriptionEditor.ActionLinks).Nth(DescriptionEditor.PreviewLinkIndex).ClickAsync();
+        await page.Locator(DescriptionEditor.PreviewButton).ClickAsync();
         await ExpectDescriptionRenderedAsync(page);
 
         await page.Locator(Constants.EditDescriptionSaveButton).ClickAsync();
