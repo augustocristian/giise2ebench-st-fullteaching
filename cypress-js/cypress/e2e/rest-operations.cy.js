@@ -24,11 +24,11 @@ function loginAndCreateNewCourse(mail, password) {
 
 function enterCourseAndNavigateTab(courseName, tabId) {
   // Every test creates its own course, so the list must hold more than the 2 seeded ones
-  cy.get("#course-list .course-list-item div.course-title span").should("have.length.greaterThan", 2);
-  cy.get("#course-list .course-list-item div.course-title span").then(($spans) => {
-    const span = $spans.toArray().find((el) => Cypress.$(el).text().trim() === courseName);
-    expect(span, `The course with the name '${courseName}' could not be found`).to.exist;
-    cy.wrap(span).click();
+  cy.get(COURSE_TITLE_LINK).should("have.length.greaterThan", 2);
+  cy.get(COURSE_TITLE_LINK).then(($titles) => {
+    const title = $titles.toArray().find((el) => Cypress.$(el).text().trim() === courseName);
+    expect(title, `The course with the name '${courseName}' could not be found`).to.exist;
+    cy.wrap(title).click();
   });
   cy.get("#main-course-title").should("have.text", courseName);
   cy.get(`#${tabId}`).click();
@@ -38,6 +38,8 @@ function enterCourseAndNavigateTab(courseName, tabId) {
 // forms) and submits it.
 // The rendered course text also carries the ql-editor class; the editable one is the other.
 const QUILL_EDITOR = ".ql-editor:not(.ql-editor-custom)";
+// The course title in the dashboard list is an <a class="title"> inside .course-title.
+const COURSE_TITLE_LINK = "#course-list .course-list-item .course-title .title";
 
 function submitDialog({ trigger, fields, submit, dialogId, failMessage }) {
   cy.openDialog(trigger);
@@ -111,7 +113,7 @@ describe("Course REST operations", () => {
             failMessage: "Edition of course failed",
           });
         });
-      cy.get("#course-list .course-list-item:last-child div.course-title span").should("have.text", editedCourseName);
+      cy.contains(COURSE_TITLE_LINK, editedCourseName).should("exist");
 
       cy.deleteCourse(editedCourseName);
     });

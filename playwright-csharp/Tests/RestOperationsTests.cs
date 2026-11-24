@@ -111,7 +111,8 @@ public class RestOperationsTests : BaseTest
         await page.Locator(Selectors.RichTextEditor).FillAsync(TestCourseInfo);
         await page.Locator(Constants.EditDescriptionSaveButton).ClickAsync();
 
-        await Expect(page.Locator(Selectors.RichTextParagraph)).ToHaveTextAsync(TestCourseInfo);
+        // The saved view and the (hidden) preview both render the description: take the visible one.
+        await Expect(page.Locator(Selectors.RichTextParagraph).Filter(new() { Visible = true })).ToHaveTextAsync(TestCourseInfo);
         await DeleteCourseAsync(CourseName);
     }
 
@@ -247,7 +248,8 @@ public class RestOperationsTests : BaseTest
         await Expect(page.Locator(Selectors.SubgroupFileName)).ToHaveTextAsync(editedFileName);
 
         // Delete the group
-        await page.Locator(Selectors.DeleteFileGroupIcon).ClickAsync();
+        // Nested file groups carry the same icon; the first one in the DOM is the group's own.
+        await page.Locator(Selectors.DeleteFileGroupIcon).First.ClickAsync();
         await Expect(Warning).ToBeVisibleAsync();
 
         await DeleteCourseAsync(CourseName);
@@ -323,14 +325,16 @@ public class RestOperationsTests : BaseTest
         await page.Locator(Constants.EditCourseModalSave).ClickAsync();
         await LoginHelper.WaitForDialogClosedAsync(User, PutDeleteCourseDialogId, "Edition of course failed");
 
-        await Expect(page.Locator(Selectors.LastCourseTitle)).ToHaveTextAsync(editedCourseName);
+        await Expect(page.Locator(Selectors.CourseTitleLink)
+            .Filter(new() { HasTextRegex = new Regex($"^\\s*{Regex.Escape(editedCourseName)}\\s*$") })
+            .First).ToBeVisibleAsync();
     }
 
     /// <summary>Opens the test course from the dashboard and switches to the tab with the given icon.</summary>
     private async Task EnterCourseAndOpenTabAsync(string tabIconSelector)
     {
         var page = User.Page;
-        var courseTitle = page.Locator(Selectors.CourseTitleSpan)
+        var courseTitle = page.Locator(Selectors.CourseTitleLink)
             .Filter(new() { HasTextRegex = new Regex($"^\\s*{Regex.Escape(CourseName)}\\s*$") })
             .First;
         await Expect(courseTitle).ToBeVisibleAsync();
@@ -427,8 +431,8 @@ public class RestOperationsTests : BaseTest
 
         // Courses
         public const string CourseListItem = ".course-list-item";
-        public const string CourseTitleSpan = "#course-list .course-list-item div.course-title span";
-        public const string LastCourseTitle = "#course-list .course-list-item:last-child div.course-title span";
+        // The course title in the dashboard list is an <a class="title"> inside .course-title.
+        public const string CourseTitleLink = "#course-list .course-list-item .course-title .title";
         public const string MainCourseTitle = "#main-course-title";
         public const string ActiveTabWarning = ".md-tab-body.md-tab-active .card-panel.warning";
         public const string RichTextEditor = Constants.EditDescriptionContentBox;

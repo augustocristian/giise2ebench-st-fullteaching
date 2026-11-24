@@ -168,7 +168,8 @@ public class LoggedVideoSessionTests : BaseTest
         await Expect(modal).ToBeVisibleAsync();
         var deleteDiv = modal.Locator(Constants.SessionListEditModalDeleteDiv);
         await deleteDiv.Locator("label").ClickAsync();
-        await deleteDiv.Locator("a").ClickAsync();
+        // The delete control is a <button> in the current SUT (it was an <a> in older builds).
+        await deleteDiv.Locator("button").ClickAsync();
 
         await Expect(session).ToHaveCountAsync(0, new() { Timeout = LiveSessionSupport.RealtimeTimeoutMs });
     }

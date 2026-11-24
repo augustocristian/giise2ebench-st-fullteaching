@@ -43,10 +43,8 @@ module.exports = {
   USERNAME_FIELD: s.settings.userName,
   SETTINGS_USER_EMAIL: s.settings.userEmail,
 
-  MODAL_OVERLAY_OPENING: s.modal.overlayOpening,
   MODAL_OPEN: s.modal.open,
-  MODAL_OVERLAY: s.modal.overlay,
-  modalClosedSelector: s.modal.closed,
+  modalOpenSelector: s.modal.openById,
 
   COURSES_DASHBOARD_TITLE: s.course.dashboardTitle,
   COURSE_LIST_COURSE_TITLE: s.course.listCourseTitle,

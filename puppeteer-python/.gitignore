@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Test output
+results/
+logs/
+reports/
+coverage.xml
+.coverage
+.coverage.*
+htmlcov/
+
+# Node bridge
+node_modules/

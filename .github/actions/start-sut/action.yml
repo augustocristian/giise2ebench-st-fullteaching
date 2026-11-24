@@ -34,17 +34,18 @@ runs:
       run: gunzip -c "$RUNNER_TEMP"/sut-image/full-teaching-sut.tar.gz | docker load
 
     # --no-build: the app image is already loaded (the compose file builds it from sut/Dockerfile otherwise).
-    # mysql and openvidu are pulled from Docker Hub as declared in sut/docker-compose.yml.
+    # mysql and openvidu are pulled from Docker Hub; docker-compose.sut-openvidu.yml bumps OpenVidu to a
+    # version that serves the REST API the SUT's client calls (see that file).
     - name: Start the SUT
       shell: bash
-      run: docker compose -f sut/docker-compose.yml -p "${{ inputs.project }}" up -d --no-build
+      run: docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p "${{ inputs.project }}" up -d --no-build
 
     - name: Wait for the SUT
       shell: bash
       env:
         SUT_URL: ${{ inputs.sut-url }}
       run: |
-        COMPOSE="docker compose -f sut/docker-compose.yml -p ${{ inputs.project }}"
+        COMPOSE="docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p ${{ inputs.project }}"
         for i in $(seq 1 60); do
           if $COMPOSE logs full-teaching 2>&1 | grep -q "Started Application" \
              && curl -ksf -o /dev/null "$SUT_URL"; then

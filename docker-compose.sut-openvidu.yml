@@ -1,0 +1,24 @@
+# Override applied on top of sut/docker-compose.yml (fetched with setup-sut.sh) to run the E2E suites:
+#
+#   docker compose -f sut/docker-compose.yml -f docker-compose.sut-openvidu.yml -p fullteaching up -d
+#
+# sut/docker-compose.yml starts OpenVidu 2.3.0, but the SUT's own openvidu-java-client / openvidu-browser (2.32.2)
+# are incompatible with it: the client calls the REST API under /openvidu/api/..., which a 2.3.0 server does not
+# serve (it only has /api/...), so every video session fails with "Error getting sessionId and token: Server
+# error (500)" and the chat and video tests cannot pass. openvidu-browser also warns that it is only compatible
+# with the same OpenVidu version or the minor right after it, so the server is set to 2.32.1.
+# Since 2.32 the all-in-one image (OpenVidu server + Kurento) is published as openvidu/openvidu-dev; the old
+# openvidu-server-kms name has no 2.32 tag. Its settings are the ones of selenium-java/docker-compose.yml, with
+# the public host set to localhost so the browser reaches the published port 4443:
+#   - DOMAIN_OR_PUBLIC_IP replaces the 2.3.0-era OPENVIDU_PUBLICURL (the old name is silently ignored).
+#   - The image defaults to plain HTTP; the app and the browser need HTTPS/WSS, so it is switched back on.
+services:
+  full-teaching-openvidu-server-kms:
+    image: openvidu/openvidu-dev:2.32.1
+    environment:
+      - KMS_STUN_IP=stun.l.google.com
+      - KMS_STUN_PORT=19302
+      - OPENVIDU_SECRET=MY_SECRET
+      - DOMAIN_OR_PUBLIC_IP=localhost
+      - FORCE_PLAIN_HTTP=false
+      - SERVER_SSL_ENABLED=true
